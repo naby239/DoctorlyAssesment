@@ -1,4 +1,6 @@
+using Doctorly.Scheduling.Api.Contracts;
 using Doctorly.Scheduling.Application.Events.Commands.ScheduleEvent;
+using Doctorly.Scheduling.Application.Events.Commands.UpdateEvent;
 using Doctorly.Scheduling.Application.Events.Dtos;
 using Doctorly.Scheduling.Application.Events.Queries.GetEventById;
 using Doctorly.Scheduling.Application.Events.Queries.ListEvents;
@@ -62,6 +64,91 @@ public sealed class EventsController(ISender sender) : ControllerBase
         SetETag(found.Version);
 
         return Ok(found);
+    }
+
+    /// <summary>
+    /// Updates an event. Requires the If-Match header carrying the ETag from a previous read.
+    /// </summary>
+    /// <remarks>
+    /// Returns 428 when If-Match is absent and 412 when it no longer matches, so a caller can
+    /// never silently overwrite a change made by someone else.
+    /// </remarks>
+    [HttpPut("{id:guid}")]
+    [ProducesResponseType(typeof(EventDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status412PreconditionFailed)]
+    [ProducesResponseType(StatusCodes.Status428PreconditionRequired)]
+    public async Task<ActionResult<EventDto>> UpdateEvent(
+        Guid id,
+        UpdateEventRequest request,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (!TryReadIfMatch(out var expectedVersion, out var failure))
+        {
+            return failure;
+        }
+
+        var command = new UpdateEventCommand(
+            id,
+            expectedVersion,
+            request.Title,
+            request.Description,
+            request.StartTime,
+            request.EndTime);
+
+        var updated = await sender.Send(command, cancellationToken).ConfigureAwait(false);
+
+        if (updated is null)
+        {
+            return NotFound();
+        }
+
+        SetETag(updated.Version);
+
+        return Ok(updated);
+    }
+
+    private bool TryReadIfMatch(out Guid version, out ActionResult failure)
+    {
+        version = Guid.Empty;
+        failure = null!;
+
+        var header = Request.Headers.IfMatch.ToString();
+
+        if (string.IsNullOrWhiteSpace(header))
+        {
+            failure = Problem(
+                statusCode: StatusCodes.Status428PreconditionRequired,
+                title: "If-Match is required.",
+                detail: "Read the event first and send its ETag as If-Match, so a concurrent change cannot be overwritten.");
+
+            return false;
+        }
+
+        // Strip the quotes an ETag is wrapped in, and the weak validator prefix if present.
+        var candidate = header.Trim();
+
+        if (candidate.StartsWith("W/", StringComparison.OrdinalIgnoreCase))
+        {
+            candidate = candidate[2..];
+        }
+
+        candidate = candidate.Trim('"');
+
+        if (!Guid.TryParse(candidate, out version))
+        {
+            failure = Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "If-Match is not a valid ETag.",
+                detail: "Send the ETag exactly as it was returned, for example: If-Match: \"<guid>\".");
+
+            return false;
+        }
+
+        return true;
     }
 
     private void SetETag(Guid version) => Response.Headers.ETag = $"\"{version}\"";

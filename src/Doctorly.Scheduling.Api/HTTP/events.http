@@ -119,3 +119,47 @@ GET {{host}}/api/events?page=1&pageSize=2
 
 ### Filters combine
 GET {{host}}/api/events?from=2026-03-01T00:00:00Z&to=2026-04-01T00:00:00Z&status=Scheduled&search=test&page=1&pageSize=10
+
+### Update the event - If-Match carries the version captured by the create above
+PUT {{host}}/api/events/{{eventId}}
+Content-Type: application/json
+If-Match: "{{eventVersion}}"
+
+{
+  "title": "Consultation (rescheduled)",
+  "description": "Moved to the afternoon at the patient's request",
+  "startTime": "2026-03-02T14:00:00Z",
+  "endTime": "2026-03-02T14:30:00Z"
+}
+
+> {%
+    client.test("200 OK", function () {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+    client.test("Version moved on", function () {
+        client.assert(response.body.version !== client.global.get("eventVersion"),
+            "The version did not change after an update");
+    });
+    client.global.set("staleVersion", client.global.get("eventVersion"));
+    client.global.set("eventVersion", response.body.version);
+%}
+
+### Repeat the update with the now-stale version - this is the lost update, refused
+PUT {{host}}/api/events/{{eventId}}
+Content-Type: application/json
+If-Match: "{{staleVersion}}"
+
+{
+  "title": "Should not overwrite",
+  "startTime": "2026-03-02T16:00:00Z",
+  "endTime": "2026-03-02T16:30:00Z"
+}
+
+> {%
+    client.test("412 Precondition Failed", function () {
+        client.assert(response.status === 412, "Expected 412, got " + response.status);
+    });
+%}
+
+### Confirm the first writer's change survived
+GET {{host}}/api/events/{{eventId}}

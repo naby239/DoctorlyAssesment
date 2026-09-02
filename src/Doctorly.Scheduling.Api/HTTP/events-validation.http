@@ -132,3 +132,41 @@ GET {{host}}/api/events?from=2026-06-10T11:00:00&to=2026-06-10T13:00:00
 
 ### Query filter with an explicit offset
 GET {{host}}/api/events?from=2026-06-10T13:00:00%2B02:00&to=2026-06-10T15:00:00%2B02:00
+
+### Update with no If-Match header at all
+PUT {{host}}/api/events/{{eventId}}
+Content-Type: application/json
+
+{
+  "title": "No precondition",
+  "startTime": "2026-03-02T16:00:00Z",
+  "endTime": "2026-03-02T16:30:00Z"
+}
+
+> {%
+    client.test("428 Precondition Required", function () {
+        client.assert(response.status === 428, "Expected 428, got " + response.status);
+    });
+%}
+
+### Update with a malformed If-Match
+PUT {{host}}/api/events/{{eventId}}
+Content-Type: application/json
+If-Match: "not-a-guid"
+
+{
+  "title": "Bad precondition",
+  "startTime": "2026-03-02T16:00:00Z",
+  "endTime": "2026-03-02T16:30:00Z"
+}
+
+### Update an event that does not exist
+PUT {{host}}/api/events/00000000-0000-0000-0000-000000000001
+Content-Type: application/json
+If-Match: "00000000-0000-0000-0000-000000000002"
+
+{
+  "title": "Nobody",
+  "startTime": "2026-03-02T16:00:00Z",
+  "endTime": "2026-03-02T16:30:00Z"
+}

@@ -1,3 +1,4 @@
+using Doctorly.Scheduling.Application.Common.Exceptions;
 using Doctorly.Scheduling.Domain.Common;
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
@@ -19,6 +20,7 @@ public sealed class GlobalExceptionHandler(
         var problemDetails = exception switch
         {
             ValidationException validationException => CreateValidationProblem(validationException),
+            ConcurrencyConflictException conflict => CreateConcurrencyProblem(conflict),
             DomainException domainException => CreateDomainProblem(domainException),
             _ => CreateUnexpectedProblem(),
         };
@@ -58,6 +60,14 @@ public sealed class GlobalExceptionHandler(
 
         return problem;
     }
+
+    private static ProblemDetails CreateConcurrencyProblem(ConcurrencyConflictException exception) => new()
+    {
+        Status = StatusCodes.Status412PreconditionFailed,
+        Title = "The event was changed by someone else.",
+        Detail = exception.Message,
+        Type = "https://tools.ietf.org/html/rfc9110#section-15.5.13",
+    };
 
     private static ProblemDetails CreateDomainProblem(DomainException exception) => new()
     {
