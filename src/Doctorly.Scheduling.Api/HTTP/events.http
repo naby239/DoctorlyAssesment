@@ -31,6 +31,7 @@ Content-Type: application/json
     client.global.set("eventId", response.body.id);
     client.global.set("eventVersion", response.body.version);
     client.global.set("attendeeId", response.body.attendees[0].attendeeId);
+    client.global.set("secondAttendeeId", response.body.attendees[1].attendeeId);
 
     client.test("201 Created", function () {
         client.assert(response.status === 201, "Expected 201, got " + response.status);
@@ -189,3 +190,49 @@ GET {{host}}/api/events/{{eventId}}
 
 ### ...and still listed under the cancelled filter
 GET {{host}}/api/events?status=Cancelled
+
+### Attendee accepts their invitation. No If-Match - a reply cannot clash with an edit
+### to the event's title or time.
+POST {{host}}/api/events/{{eventId}}/attendees/{{attendeeId}}/response
+Content-Type: application/json
+
+{
+  "response": "Accepted"
+}
+
+> {%
+    client.test("200 OK", function () {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+    client.test("That attendee is now Accepted", function () {
+        var me = response.body.attendees.filter(function (a) {
+            return a.attendeeId === client.global.get("attendeeId");
+        })[0];
+        client.assert(me.status === "Accepted", "Status was " + me.status);
+    });
+    client.global.set("eventVersion", response.body.version);
+%}
+
+### The other attendee declines
+POST {{host}}/api/events/{{eventId}}/attendees/{{secondAttendeeId}}/response
+Content-Type: application/json
+
+{
+  "response": "Declined"
+}
+
+> {%
+    client.global.set("eventVersion", response.body.version);
+%}
+
+### An attendee may change their mind
+POST {{host}}/api/events/{{eventId}}/attendees/{{attendeeId}}/response
+Content-Type: application/json
+
+{
+  "response": "Declined"
+}
+
+> {%
+    client.global.set("eventVersion", response.body.version);
+%}

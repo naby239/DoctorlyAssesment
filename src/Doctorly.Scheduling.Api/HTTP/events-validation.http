@@ -181,3 +181,27 @@ If-Match: "{{eventVersion}}"
 ### Cancel an event that does not exist
 DELETE {{host}}/api/events/00000000-0000-0000-0000-000000000001
 If-Match: "00000000-0000-0000-0000-000000000002"
+
+### Responding with Pending - you can accept or decline, not un-answer
+POST {{host}}/api/events/{{eventId}}/attendees/{{attendeeId}}/response
+Content-Type: application/json
+
+{
+  "response": "Pending"
+}
+
+### An answer that is not a known value
+POST {{host}}/api/events/{{eventId}}/attendees/{{attendeeId}}/response
+Content-Type: application/json
+
+{
+  "response": "Maybe"
+}
+
+### An attendee who was never invited to this event
+POST {{host}}/api/events/{{eventId}}/attendees/00000000-0000-0000-0000-000000000001/response
+Content-Type: application/json
+
+{
+  "response": "Accepted"
+}

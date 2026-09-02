@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Doctorly.Scheduling.Api.ErrorHandling;
 using Doctorly.Scheduling.Api.OpenApi;
 using Doctorly.Scheduling.Api.Serialization;
@@ -11,7 +12,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(options =>
         options.ModelBinderProviders.Insert(0, new RequiredOffsetDateTimeModelBinderProvider()))
     .AddJsonOptions(options =>
-        options.JsonSerializerOptions.Converters.Add(new RequiredOffsetDateTimeConverter()));
+    {
+        options.JsonSerializerOptions.Converters.Add(new RequiredOffsetDateTimeConverter());
+
+        // Enums travel as their names, so a caller sends "Accepted" rather than 1.
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);

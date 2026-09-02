@@ -1,5 +1,6 @@
 using Doctorly.Scheduling.Api.Contracts;
 using Doctorly.Scheduling.Application.Events.Commands.CancelEvent;
+using Doctorly.Scheduling.Application.Events.Commands.RespondToInvitation;
 using Doctorly.Scheduling.Application.Events.Commands.ScheduleEvent;
 using Doctorly.Scheduling.Application.Events.Commands.UpdateEvent;
 using Doctorly.Scheduling.Application.Events.Dtos;
@@ -147,6 +148,39 @@ public sealed class EventsController(ISender sender) : ControllerBase
         SetETag(cancelled.Version);
 
         return Ok(cancelled);
+    }
+
+    /// <summary>
+    /// Records an attendee accepting or declining their invitation.
+    /// </summary>
+    /// <remarks>
+    /// No If-Match here. An attendee replying to an invitation cannot conflict with a change to
+    /// the event's title or time, and typically follows a link without ever having read an ETag.
+    /// </remarks>
+    [HttpPost("{id:guid}/attendees/{attendeeId:guid}/response")]
+    [ProducesResponseType(typeof(EventDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<EventDto>> RespondToInvitation(
+        Guid id,
+        Guid attendeeId,
+        RespondToInvitationRequest request,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        var command = new RespondToInvitationCommand(id, attendeeId, request.Response);
+
+        var updated = await sender.Send(command, cancellationToken).ConfigureAwait(false);
+
+        if (updated is null)
+        {
+            return NotFound();
+        }
+
+        SetETag(updated.Version);
+
+        return Ok(updated);
     }
 
     private bool TryReadIfMatch(out Guid version, out ActionResult failure)
