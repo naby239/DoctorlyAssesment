@@ -77,6 +77,8 @@ public sealed class ScheduleEventCommandHandler(
             calendarEvent.StartTime,
             calendarEvent.EndTime,
             calendarEvent.Status.ToString(),
+            calendarEvent.CancellationReason,
+            calendarEvent.CancelledAt,
             calendarEvent.Version,
             attendeeDtos);
     }

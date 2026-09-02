@@ -1,4 +1,5 @@
 using Doctorly.Scheduling.Api.Contracts;
+using Doctorly.Scheduling.Application.Events.Commands.CancelEvent;
 using Doctorly.Scheduling.Application.Events.Commands.ScheduleEvent;
 using Doctorly.Scheduling.Application.Events.Commands.UpdateEvent;
 using Doctorly.Scheduling.Application.Events.Dtos;
@@ -109,6 +110,43 @@ public sealed class EventsController(ISender sender) : ControllerBase
         SetETag(updated.Version);
 
         return Ok(updated);
+    }
+
+    /// <summary>
+    /// Cancels an event. Requires the If-Match header carrying the ETag from a previous read.
+    /// </summary>
+    /// <remarks>
+    /// The event is not removed. It moves to the Cancelled state, keeping its attendees and its
+    /// history, and is still returned by the list endpoint under <c>status=Cancelled</c>.
+    /// </remarks>
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(typeof(EventDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status412PreconditionFailed)]
+    [ProducesResponseType(StatusCodes.Status428PreconditionRequired)]
+    public async Task<ActionResult<EventDto>> CancelEvent(
+        Guid id,
+        [FromQuery] string? reason,
+        CancellationToken cancellationToken)
+    {
+        if (!TryReadIfMatch(out var expectedVersion, out var failure))
+        {
+            return failure;
+        }
+
+        var cancelled = await sender
+            .Send(new CancelEventCommand(id, expectedVersion, reason), cancellationToken)
+            .ConfigureAwait(false);
+
+        if (cancelled is null)
+        {
+            return NotFound();
+        }
+
+        SetETag(cancelled.Version);
+
+        return Ok(cancelled);
     }
 
     private bool TryReadIfMatch(out Guid version, out ActionResult failure)

@@ -163,3 +163,29 @@ If-Match: "{{staleVersion}}"
 
 ### Confirm the first writer's change survived
 GET {{host}}/api/events/{{eventId}}
+
+### Cancel the event. DELETE is the verb, but the record is kept - only its status changes.
+DELETE {{host}}/api/events/{{eventId}}?reason=Patient called to cancel
+If-Match: "{{eventVersion}}"
+
+> {%
+    client.test("200 OK", function () {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+    client.test("Status is Cancelled", function () {
+        client.assert(response.body.status === "Cancelled", "Status was " + response.body.status);
+    });
+    client.test("Reason recorded", function () {
+        client.assert(response.body.cancellationReason === "Patient called to cancel");
+    });
+    client.test("Attendees kept", function () {
+        client.assert(response.body.attendees.length > 0, "Attendees were lost on cancel");
+    });
+    client.global.set("eventVersion", response.body.version);
+%}
+
+### The cancelled event is still there - not a 404
+GET {{host}}/api/events/{{eventId}}
+
+### ...and still listed under the cancelled filter
+GET {{host}}/api/events?status=Cancelled

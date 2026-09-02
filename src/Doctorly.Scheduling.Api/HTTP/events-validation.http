@@ -170,3 +170,14 @@ If-Match: "00000000-0000-0000-0000-000000000002"
   "startTime": "2026-03-02T16:00:00Z",
   "endTime": "2026-03-02T16:30:00Z"
 }
+
+### Cancel with no If-Match
+DELETE {{host}}/api/events/{{eventId}}
+
+### Cancel an already-cancelled event
+DELETE {{host}}/api/events/{{eventId}}?reason=Again
+If-Match: "{{eventVersion}}"
+
+### Cancel an event that does not exist
+DELETE {{host}}/api/events/00000000-0000-0000-0000-000000000001
+If-Match: "00000000-0000-0000-0000-000000000002"

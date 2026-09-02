@@ -21,6 +21,8 @@ internal sealed class EventQueries(SchedulingDbContext context) : IEventQueries
                 e.StartTime,
                 e.EndTime,
                 e.Status,
+                e.CancellationReason,
+                e.CancelledAt,
                 e.Version,
                 Attendees = e.Attendees
                     .Join(
@@ -52,6 +54,8 @@ internal sealed class EventQueries(SchedulingDbContext context) : IEventQueries
             found.StartTime,
             found.EndTime,
             found.Status.ToString(),
+            found.CancellationReason,
+            found.CancelledAt,
             found.Version,
             found.Attendees
                 .Select(a => new EventAttendeeDto(

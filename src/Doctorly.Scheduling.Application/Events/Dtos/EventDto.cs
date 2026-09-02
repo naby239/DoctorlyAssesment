@@ -7,6 +7,8 @@ public sealed record EventDto(
     DateTime StartTime,
     DateTime EndTime,
     string Status,
+    string? CancellationReason,
+    DateTime? CancelledAt,
     Guid Version,
     IReadOnlyList<EventAttendeeDto> Attendees);
 
