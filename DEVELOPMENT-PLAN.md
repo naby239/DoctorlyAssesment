@@ -97,3 +97,5 @@ creating an event with them included in.
 * Create a check endpoint that returns information around the attendees in question
 * Business logic to check the attendees availability
 * Data layer
+
+Note I used SQL lite for ease of use in the interview test but it does have its limitations
