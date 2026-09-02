@@ -496,3 +496,4 @@ appsettings.Local.json
 *.db
 *.db-shm
 *.db-wal
+http-client.private.env.json

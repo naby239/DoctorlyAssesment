@@ -1,3 +1,4 @@
+using Doctorly.Scheduling.Domain.Common;
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +19,7 @@ public sealed class GlobalExceptionHandler(
         var problemDetails = exception switch
         {
             ValidationException validationException => CreateValidationProblem(validationException),
+            DomainException domainException => CreateDomainProblem(domainException),
             _ => CreateUnexpectedProblem(),
         };
 
@@ -56,6 +58,14 @@ public sealed class GlobalExceptionHandler(
 
         return problem;
     }
+
+    private static ProblemDetails CreateDomainProblem(DomainException exception) => new()
+    {
+        Status = StatusCodes.Status400BadRequest,
+        Title = "The request breaks a scheduling rule.",
+        Detail = exception.Message,
+        Type = "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+    };
 
     // No exception detail: this response can reach an external caller.
     private static ProblemDetails CreateUnexpectedProblem() => new()

@@ -1,6 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
+    <!-- Developer request files: shown in the IDE, never copied to the build output.
+         Case must match the folder on disk - globs are case-sensitive on Linux. -->
+    <Content Remove="HTTP/**" />
+    <None Include="HTTP/**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
@@ -12,6 +19,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Doctorly.Scheduling.Application\Doctorly.Scheduling.Application.csproj" />
     <ProjectReference Include="..\Doctorly.Scheduling.Infrastructure\Doctorly.Scheduling.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="HTTP\" />
   </ItemGroup>
 
 </Project>

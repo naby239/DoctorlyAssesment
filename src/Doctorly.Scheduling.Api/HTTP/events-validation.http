@@ -1,0 +1,84 @@
+# Failure cases. Each should return an RFC 7807 problem+json body, not a stack trace.
+
+### Blank title and an end time before the start - both errors returned at once
+POST {{host}}/api/events
+Content-Type: application/json
+
+{
+  "title": "",
+  "startTime": "2026-03-02T10:00:00Z",
+  "endTime": "2026-03-02T09:00:00Z"
+}
+
+> {%
+    client.test("400 Bad Request", function () {
+        client.assert(response.status === 400, "Expected 400, got " + response.status);
+    });
+    client.test("Both failures reported together", function () {
+        client.assert(response.body.errors.Title !== undefined, "Title error missing");
+        client.assert(response.body.errors.EndTime !== undefined, "EndTime error missing");
+    });
+%}
+
+### Title longer than 200 characters
+POST {{host}}/api/events
+Content-Type: application/json
+
+{
+  "title": "Consultation Consultation Consultation Consultation Consultation Consultation Consultation Consultation Consultation Consultation Consultation Consultation Consultation Consultation Consultation Consultation",
+  "startTime": "2026-03-02T09:00:00Z",
+  "endTime": "2026-03-02T09:30:00Z"
+}
+
+### Start and end at the same moment
+POST {{host}}/api/events
+Content-Type: application/json
+
+{
+  "title": "Consultation",
+  "startTime": "2026-03-02T09:00:00Z",
+  "endTime": "2026-03-02T09:00:00Z"
+}
+
+### The same attendee invited twice in one request
+POST {{host}}/api/events
+Content-Type: application/json
+
+{
+  "title": "Consultation",
+  "startTime": "2026-03-02T09:00:00Z",
+  "endTime": "2026-03-02T09:30:00Z",
+  "attendees": [
+    { "name": "Anna Weber", "email": "anna@practice.de" },
+    { "name": "Anna Weber", "email": "ANNA@practice.de" }
+  ]
+}
+
+### Attendee with a malformed email address
+POST {{host}}/api/events
+Content-Type: application/json
+
+{
+  "title": "Consultation",
+  "startTime": "2026-03-02T09:00:00Z",
+  "endTime": "2026-03-02T09:30:00Z",
+  "attendees": [
+    { "name": "Anna Weber", "email": "not-an-email" }
+  ]
+}
+
+### Attendee with no name
+POST {{host}}/api/events
+Content-Type: application/json
+
+{
+  "title": "Consultation",
+  "startTime": "2026-03-02T09:00:00Z",
+  "endTime": "2026-03-02T09:30:00Z",
+  "attendees": [
+    { "name": "", "email": "anna@practice.de" }
+  ]
+}
+
+### Unknown route - should still be problem+json
+GET {{host}}/api/does-not-exist

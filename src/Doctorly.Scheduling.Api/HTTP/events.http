@@ -1,0 +1,82 @@
+# Create event. Run top to bottom - later requests reuse the id and version captured here.
+# Start the API first: dotnet run --project src/Doctorly.Scheduling.Api
+
+### Health check
+GET {{host}}/health
+
+### Schedule an event with two attendees
+POST {{host}}/api/events
+Content-Type: application/json
+
+{
+  "title": "Consultation",
+  "description": "Annual check-up",
+  "startTime": "2026-03-02T09:00:00Z",
+  "endTime": "2026-03-02T09:30:00Z",
+  "attendees": [
+    {
+      "name": "Anna Weber",
+      "email": "Anna.Weber@practice.de",
+      "contactNumber": "+49 30 1234567"
+    },
+    {
+      "name": "Dr Klein",
+      "email": "klein@practice.de",
+      "optInNotify": false
+    }
+  ]
+}
+
+> {%
+    client.global.set("eventId", response.body.id);
+    client.global.set("eventVersion", response.body.version);
+    client.global.set("attendeeId", response.body.attendees[0].attendeeId);
+
+    client.test("201 Created", function () {
+        client.assert(response.status === 201, "Expected 201, got " + response.status);
+    });
+    client.test("ETag returned", function () {
+        client.assert(response.headers.valueOf("ETag") !== null, "No ETag header");
+    });
+    client.test("Email stored lower case", function () {
+        client.assert(response.body.attendees[0].email === "anna.weber@practice.de");
+    });
+    client.test("Invitations start as Pending", function () {
+        client.assert(response.body.attendees[0].status === "Pending");
+    });
+%}
+
+### Schedule a second event for the same patient - the attendee should be reused, not duplicated
+POST {{host}}/api/events
+Content-Type: application/json
+
+{
+  "title": "Follow-up",
+  "description": "Review results",
+  "startTime": "2026-03-09T09:00:00Z",
+  "endTime": "2026-03-09T09:30:00Z",
+  "attendees": [
+    {
+      "name": "Anna Weber",
+      "email": "ANNA.WEBER@PRACTICE.DE"
+    }
+  ]
+}
+
+> {%
+    client.test("Existing attendee reused", function () {
+        client.assert(
+            response.body.attendees[0].attendeeId === client.global.get("attendeeId"),
+            "A duplicate attendee was created instead of reusing the existing one");
+    });
+%}
+
+### Schedule an event with no attendees
+POST {{host}}/api/events
+Content-Type: application/json
+
+{
+  "title": "Practice meeting",
+  "startTime": "2026-03-03T14:00:00Z",
+  "endTime": "2026-03-03T15:00:00Z"
+}

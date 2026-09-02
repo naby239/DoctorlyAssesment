@@ -47,6 +47,11 @@ public sealed class Attendee
         return trimmed;
     }
 
+    // Lower-cased so the same person is matched rather than duplicated on their next visit.
+    // Public so a lookup uses exactly the same form that was stored.
+    public static string NormaliseEmail(string email) =>
+        email.Trim().ToLower(CultureInfo.InvariantCulture);
+
     private static string ValidateEmail(string? email)
     {
         if (string.IsNullOrWhiteSpace(email))
@@ -54,8 +59,7 @@ public sealed class Attendee
             throw new DomainException("An attendee must have an email address.");
         }
 
-        // Lower-cased so the same person is matched rather than duplicated on their next visit.
-        var normalised = email.Trim().ToLower(CultureInfo.InvariantCulture);
+        var normalised = NormaliseEmail(email);
 
         if (normalised.Length > SchedulingLimits.EmailAddressMaxLength)
         {

@@ -1,4 +1,6 @@
+using Doctorly.Scheduling.Application.Common.Interfaces;
 using Doctorly.Scheduling.Infrastructure.Persistence;
+using Doctorly.Scheduling.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +18,10 @@ public static class DependencyInjection
                 "Connection string 'SchedulingDatabase' is not configured.");
 
         services.AddDbContext<SchedulingDbContext>(options => options.UseSqlite(connectionString));
+
+        services.AddScoped<ICalendarEventRepository, CalendarEventRepository>();
+        services.AddScoped<IAttendeeRepository, AttendeeRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;
     }
