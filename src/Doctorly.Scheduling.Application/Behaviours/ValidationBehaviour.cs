@@ -3,9 +3,6 @@ using MediatR;
 
 namespace Doctorly.Scheduling.Application.Behaviours;
 
-/// <summary>
-/// Runs any validators registered for a request before its handler executes.
-/// </summary>
 public sealed class ValidationBehaviour<TRequest, TResponse>(
     IEnumerable<IValidator<TRequest>> validators)
     : IPipelineBehavior<TRequest, TResponse>

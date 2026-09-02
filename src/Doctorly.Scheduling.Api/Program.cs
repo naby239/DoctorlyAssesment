@@ -2,6 +2,8 @@ using Doctorly.Scheduling.Api.ErrorHandling;
 using Doctorly.Scheduling.Api.OpenApi;
 using Doctorly.Scheduling.Application;
 using Doctorly.Scheduling.Infrastructure;
+using Doctorly.Scheduling.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +21,13 @@ builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
+// Creates and migrates the SQLite file on first run so the project works from a clean clone.
+await using (var scope = app.Services.CreateAsyncScope())
+{
+    await scope.ServiceProvider.GetRequiredService<SchedulingDbContext>()
+        .Database.MigrateAsync().ConfigureAwait(false);
+}
+
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 
@@ -30,7 +39,5 @@ app.MapHealthChecks("/health").AllowAnonymous();
 
 await app.RunAsync().ConfigureAwait(false);
 
-/// <summary>
-/// Exposed so <c>WebApplicationFactory</c> can boot the API in integration tests.
-/// </summary>
+// Exposed for WebApplicationFactory in the integration tests.
 public partial class Program;

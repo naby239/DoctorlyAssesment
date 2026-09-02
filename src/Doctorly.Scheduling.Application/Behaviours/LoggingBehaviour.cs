@@ -4,9 +4,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Doctorly.Scheduling.Application.Behaviours;
 
-/// <summary>
-/// Logs the name and duration of each request passing through the mediator.
-/// </summary>
 public sealed class LoggingBehaviour<TRequest, TResponse>(
     ILogger<LoggingBehaviour<TRequest, TResponse>> logger)
     : IPipelineBehavior<TRequest, TResponse>
@@ -17,7 +14,7 @@ public sealed class LoggingBehaviour<TRequest, TResponse>(
         RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
-        // Request type only - the payloads carry patient names and appointment times.
+        // Type only; payloads carry patient names and appointment times.
         var requestName = typeof(TRequest).Name;
         var timer = Stopwatch.StartNew();
 

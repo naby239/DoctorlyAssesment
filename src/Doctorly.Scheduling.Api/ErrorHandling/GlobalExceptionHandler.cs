@@ -5,9 +5,6 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 namespace Doctorly.Scheduling.Api.ErrorHandling;
 
-/// <summary>
-/// Translates exceptions from the layers below into RFC 7807 problem details.
-/// </summary>
 public sealed class GlobalExceptionHandler(
     IProblemDetailsService problemDetailsService,
     ILogger<GlobalExceptionHandler> logger)
@@ -26,7 +23,6 @@ public sealed class GlobalExceptionHandler(
 
         httpContext.Response.StatusCode = problemDetails.Status ?? StatusCodes.Status500InternalServerError;
 
-        // Validation failures are the API working as intended; only defects warrant an error log.
         if (problemDetails.Status == StatusCodes.Status500InternalServerError)
         {
             logger.LogError(exception, "Unhandled exception processing {Path}", httpContext.Request.Path);
@@ -61,7 +57,7 @@ public sealed class GlobalExceptionHandler(
         return problem;
     }
 
-    // No exception detail: this response can reach an external integrator.
+    // No exception detail: this response can reach an external caller.
     private static ProblemDetails CreateUnexpectedProblem() => new()
     {
         Status = StatusCodes.Status500InternalServerError,

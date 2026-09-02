@@ -493,3 +493,6 @@ artifacts/
 # Local-only overrides. Connection strings belong in user secrets, never in the repo.
 appsettings.Local.json
 *.local.json
+*.db
+*.db-shm
+*.db-wal
