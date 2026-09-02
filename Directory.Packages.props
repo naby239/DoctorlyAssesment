@@ -19,6 +19,8 @@
     <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.19" />
     <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.19" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.19" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.19" />
+    <PackageVersion Include="MailKit" Version="4.17.0" />
   </ItemGroup>
 
   <ItemGroup Label="Api">

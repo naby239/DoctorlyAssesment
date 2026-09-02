@@ -1,5 +1,6 @@
 using Doctorly.Scheduling.Application.Common.Interfaces;
 using Doctorly.Scheduling.Application.Events.Dtos;
+using Doctorly.Scheduling.Application.Notifications;
 using Doctorly.Scheduling.Domain.Scheduling;
 using MediatR;
 
@@ -8,7 +9,8 @@ namespace Doctorly.Scheduling.Application.Events.Commands.ScheduleEvent;
 public sealed class ScheduleEventCommandHandler(
     ICalendarEventRepository events,
     IAttendeeRepository attendees,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    INotificationDispatcher notifications)
     : IRequestHandler<ScheduleEventCommand, EventDto>
 {
     public async Task<EventDto> Handle(ScheduleEventCommand request, CancellationToken cancellationToken)
@@ -32,7 +34,15 @@ public sealed class ScheduleEventCommandHandler(
         await events.AddAsync(calendarEvent, cancellationToken).ConfigureAwait(false);
         await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-        return Map(calendarEvent, invited);
+        var scheduled = Map(calendarEvent, invited);
+
+        await notifications
+            .DispatchAsync(
+                EventNotificationFactory.From(scheduled, NotificationKind.EventScheduled),
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        return scheduled;
     }
 
     // Attendees are reused across appointments, so an existing record wins over a new one.

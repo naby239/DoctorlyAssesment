@@ -1,6 +1,7 @@
 using Doctorly.Scheduling.Application.Common.Exceptions;
 using Doctorly.Scheduling.Application.Common.Interfaces;
 using Doctorly.Scheduling.Application.Events.Dtos;
+using Doctorly.Scheduling.Application.Notifications;
 using MediatR;
 
 namespace Doctorly.Scheduling.Application.Events.Commands.UpdateEvent;
@@ -8,7 +9,8 @@ namespace Doctorly.Scheduling.Application.Events.Commands.UpdateEvent;
 public sealed class UpdateEventCommandHandler(
     ICalendarEventRepository events,
     IUnitOfWork unitOfWork,
-    IEventQueries queries)
+    IEventQueries queries,
+    INotificationDispatcher notifications)
     : IRequestHandler<UpdateEventCommand, EventDto?>
 {
     public async Task<EventDto?> Handle(UpdateEventCommand request, CancellationToken cancellationToken)
@@ -34,6 +36,17 @@ public sealed class UpdateEventCommandHandler(
         // concurrency token, which SaveChanges turns into a ConcurrencyConflictException.
         await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-        return await queries.GetByIdAsync(request.Id, cancellationToken).ConfigureAwait(false);
+        var updated = await queries.GetByIdAsync(request.Id, cancellationToken).ConfigureAwait(false);
+
+        if (updated is not null)
+        {
+            await notifications
+                .DispatchAsync(
+                    EventNotificationFactory.From(updated, NotificationKind.EventUpdated),
+                    cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        return updated;
     }
 }

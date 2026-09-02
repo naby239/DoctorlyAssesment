@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doctorly.Scheduling.Applica
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doctorly.Scheduling.Domain.Tests", "tests\Doctorly.Scheduling.Domain.Tests\Doctorly.Scheduling.Domain.Tests.csproj", "{9F0D482B-07A3-449B-BD60-C72A7F53CC1B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doctorly.Scheduling.Infrastructure.Tests", "tests\Doctorly.Scheduling.Infrastructure.Tests\Doctorly.Scheduling.Infrastructure.Tests.csproj", "{1530B224-1F3F-43CF-9093-138061A5E3A0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -115,6 +117,18 @@ Global
 		{9F0D482B-07A3-449B-BD60-C72A7F53CC1B}.Release|x64.Build.0 = Release|Any CPU
 		{9F0D482B-07A3-449B-BD60-C72A7F53CC1B}.Release|x86.ActiveCfg = Release|Any CPU
 		{9F0D482B-07A3-449B-BD60-C72A7F53CC1B}.Release|x86.Build.0 = Release|Any CPU
+		{1530B224-1F3F-43CF-9093-138061A5E3A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1530B224-1F3F-43CF-9093-138061A5E3A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1530B224-1F3F-43CF-9093-138061A5E3A0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1530B224-1F3F-43CF-9093-138061A5E3A0}.Debug|x64.Build.0 = Debug|Any CPU
+		{1530B224-1F3F-43CF-9093-138061A5E3A0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1530B224-1F3F-43CF-9093-138061A5E3A0}.Debug|x86.Build.0 = Debug|Any CPU
+		{1530B224-1F3F-43CF-9093-138061A5E3A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1530B224-1F3F-43CF-9093-138061A5E3A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1530B224-1F3F-43CF-9093-138061A5E3A0}.Release|x64.ActiveCfg = Release|Any CPU
+		{1530B224-1F3F-43CF-9093-138061A5E3A0}.Release|x64.Build.0 = Release|Any CPU
+		{1530B224-1F3F-43CF-9093-138061A5E3A0}.Release|x86.ActiveCfg = Release|Any CPU
+		{1530B224-1F3F-43CF-9093-138061A5E3A0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -127,5 +141,6 @@ Global
 		{2675BED4-40B3-4CC3-A4DA-070D84F83C43} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{CF7464E2-10EE-4B4D-B118-278C7C05CB73} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{9F0D482B-07A3-449B-BD60-C72A7F53CC1B} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{1530B224-1F3F-43CF-9093-138061A5E3A0} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal

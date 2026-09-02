@@ -1,6 +1,7 @@
 using Doctorly.Scheduling.Application.Common.Exceptions;
 using Doctorly.Scheduling.Application.Common.Interfaces;
 using Doctorly.Scheduling.Application.Events.Dtos;
+using Doctorly.Scheduling.Application.Notifications;
 using MediatR;
 
 namespace Doctorly.Scheduling.Application.Events.Commands.CancelEvent;
@@ -8,7 +9,8 @@ namespace Doctorly.Scheduling.Application.Events.Commands.CancelEvent;
 public sealed class CancelEventCommandHandler(
     ICalendarEventRepository events,
     IUnitOfWork unitOfWork,
-    IEventQueries queries)
+    IEventQueries queries,
+    INotificationDispatcher notifications)
     : IRequestHandler<CancelEventCommand, EventDto?>
 {
     public async Task<EventDto?> Handle(CancelEventCommand request, CancellationToken cancellationToken)
@@ -31,6 +33,17 @@ public sealed class CancelEventCommandHandler(
 
         await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-        return await queries.GetByIdAsync(request.Id, cancellationToken).ConfigureAwait(false);
+        var updated = await queries.GetByIdAsync(request.Id, cancellationToken).ConfigureAwait(false);
+
+        if (updated is not null)
+        {
+            await notifications
+                .DispatchAsync(
+                    EventNotificationFactory.From(updated, NotificationKind.EventCancelled),
+                    cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        return updated;
     }
 }

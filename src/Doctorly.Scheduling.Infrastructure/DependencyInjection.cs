@@ -1,4 +1,6 @@
 using Doctorly.Scheduling.Application.Common.Interfaces;
+using Doctorly.Scheduling.Application.Notifications;
+using Doctorly.Scheduling.Infrastructure.Notifications;
 using Doctorly.Scheduling.Infrastructure.Persistence;
 using Doctorly.Scheduling.Infrastructure.Persistence.Queries;
 using Doctorly.Scheduling.Infrastructure.Persistence.Repositories;
@@ -24,6 +26,14 @@ public static class DependencyInjection
         services.AddScoped<IAttendeeRepository, AttendeeRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IEventQueries, EventQueries>();
+
+        services.Configure<NotificationOptions>(
+            configuration.GetSection(NotificationOptions.SectionName));
+
+        services.AddScoped<INotificationChannel, EmailNotificationChannel>();
+        services.AddScoped<INotificationChannel, WhatsAppNotificationChannel>();
+        services.AddScoped<INotificationChannel, PushNotificationChannel>();
+        services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
 
         return services;
     }

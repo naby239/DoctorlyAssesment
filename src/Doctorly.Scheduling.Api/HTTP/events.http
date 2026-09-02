@@ -236,3 +236,16 @@ Content-Type: application/json
 > {%
     client.global.set("eventVersion", response.body.version);
 %}
+
+###
+# Notifications
+#
+# Nothing to configure: every create, update and cancel above writes an .eml to
+# artifacts/notifications/ next to the running API.
+#
+# To send over real SMTP instead, install a local mail catcher once:
+#     dotnet tool install -g Rnwood.Smtp4dev
+#     smtp4dev
+# then set Notifications:Email:Delivery to "Smtp" in appsettings.json (SmtpPort 2525 by
+# default) and restart the API. The message then appears in the smtp4dev web UI.
+###

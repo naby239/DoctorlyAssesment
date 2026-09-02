@@ -5,10 +5,17 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+    <PackageReference Include="MailKit" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Doctorly.Scheduling.Application\Doctorly.Scheduling.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Doctorly.Scheduling.Infrastructure.Tests" />
   </ItemGroup>
 
 </Project>

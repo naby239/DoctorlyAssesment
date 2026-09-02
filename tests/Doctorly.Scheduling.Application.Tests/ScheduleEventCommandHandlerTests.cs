@@ -1,5 +1,6 @@
 using Doctorly.Scheduling.Application.Common.Interfaces;
 using Doctorly.Scheduling.Application.Events.Commands.ScheduleEvent;
+using Doctorly.Scheduling.Application.Notifications;
 using Doctorly.Scheduling.Domain.Common;
 using Doctorly.Scheduling.Domain.Scheduling;
 using NSubstitute;
@@ -13,8 +14,9 @@ public sealed class ScheduleEventCommandHandlerTests
     private readonly ICalendarEventRepository _events = Substitute.For<ICalendarEventRepository>();
     private readonly IAttendeeRepository _attendees = Substitute.For<IAttendeeRepository>();
     private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
+    private readonly INotificationDispatcher _notifications = Substitute.For<INotificationDispatcher>();
 
-    private ScheduleEventCommandHandler CreateHandler() => new(_events, _attendees, _unitOfWork);
+    private ScheduleEventCommandHandler CreateHandler() => new(_events, _attendees, _unitOfWork, _notifications);
 
     private static ScheduleEventCommand ACommand(params ScheduleEventAttendee[] attendees) =>
         new("Consultation", "Follow-up", Monday9Am, Monday9Am.AddHours(1), attendees);
@@ -30,6 +32,39 @@ public sealed class ScheduleEventCommandHandlerTests
 
         await _events.Received(1).AddAsync(Arg.Any<CalendarEvent>(), Arg.Any<CancellationToken>());
         await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Scheduling_notifies_the_attendees_who_opted_in()
+    {
+        _attendees.FindByEmailAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns((Attendee?)null);
+
+        await CreateHandler().Handle(
+            ACommand(
+                new ScheduleEventAttendee("Anna Weber", "anna@practice.de", null),
+                new ScheduleEventAttendee("Dr Klein", "klein@practice.de", null, OptInNotify: false)),
+            CancellationToken.None);
+
+        await _notifications.Received(1).DispatchAsync(
+            Arg.Is<EventNotification>(n =>
+                n.Kind == NotificationKind.EventScheduled
+                && n.Recipients.Count == 1
+                && n.Recipients[0].Email == "anna@practice.de"),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task An_event_that_fails_to_save_notifies_nobody()
+    {
+        var command = new ScheduleEventCommand(
+            "Consultation", null, Monday9Am, Monday9Am.AddHours(-1), []);
+
+        await Should.ThrowAsync<DomainException>(
+            () => CreateHandler().Handle(command, CancellationToken.None));
+
+        await _notifications.DidNotReceive().DispatchAsync(
+            Arg.Any<EventNotification>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
