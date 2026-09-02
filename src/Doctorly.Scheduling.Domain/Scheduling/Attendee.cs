@@ -17,7 +17,7 @@ public sealed class Attendee
 
     public string? ContactNumber { get; private set; }
 
-    public DateTimeOffset CreatedAt { get; private set; }
+    public DateTime CreatedAt { get; private set; }
 
     public static Attendee Register(string? name, string? email, string? contactNumber = null) =>
         new()
@@ -26,7 +26,7 @@ public sealed class Attendee
             Name = ValidateName(name),
             Email = ValidateEmail(email),
             ContactNumber = ValidateContactNumber(contactNumber),
-            CreatedAt = DateTimeOffset.UtcNow,
+            CreatedAt = DateTime.UtcNow,
         };
 
     private static string ValidateName(string? name)

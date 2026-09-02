@@ -16,19 +16,19 @@ public sealed class CalendarEvent
 
     public string? Description { get; private set; }
 
-    public DateTimeOffset StartTime { get; private set; }
+    public DateTime StartTime { get; private set; }
 
-    public DateTimeOffset EndTime { get; private set; }
+    public DateTime EndTime { get; private set; }
 
     public EventStatus Status { get; private set; }
 
     public string? CancellationReason { get; private set; }
 
-    public DateTimeOffset? CancelledAt { get; private set; }
+    public DateTime? CancelledAt { get; private set; }
 
-    public DateTimeOffset CreatedAt { get; private set; }
+    public DateTime CreatedAt { get; private set; }
 
-    public DateTimeOffset? UpdatedAt { get; private set; }
+    public DateTime? UpdatedAt { get; private set; }
 
     // Concurrency token, surfaced over HTTP as an ETag. Changes on every write.
     public Guid Version { get; private set; }
@@ -53,7 +53,7 @@ public sealed class CalendarEvent
             StartTime = start,
             EndTime = end,
             Status = EventStatus.Scheduled,
-            CreatedAt = DateTimeOffset.UtcNow,
+            CreatedAt = DateTime.UtcNow,
             Version = Guid.NewGuid(),
         };
     }
@@ -93,7 +93,7 @@ public sealed class CalendarEvent
 
         Status = EventStatus.Cancelled;
         CancellationReason = string.IsNullOrWhiteSpace(reason) ? null : reason.Trim();
-        CancelledAt = DateTimeOffset.UtcNow;
+        CancelledAt = DateTime.UtcNow;
         MarkUpdated();
     }
 
@@ -129,7 +129,7 @@ public sealed class CalendarEvent
 
     private void MarkUpdated()
     {
-        UpdatedAt = DateTimeOffset.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
         Version = Guid.NewGuid();
     }
 
@@ -141,12 +141,14 @@ public sealed class CalendarEvent
         }
     }
 
-    private static (DateTimeOffset Start, DateTimeOffset End) ValidatePeriod(
+    // Callers may send any offset; only UTC is stored. SQLite cannot sort DateTimeOffset,
+    // and since everything is normalised the offset carried no information anyway.
+    private static (DateTime Start, DateTime End) ValidatePeriod(
         DateTimeOffset startTime,
         DateTimeOffset endTime)
     {
-        var start = startTime.ToUniversalTime();
-        var end = endTime.ToUniversalTime();
+        var start = startTime.UtcDateTime;
+        var end = endTime.UtcDateTime;
 
         if (end <= start)
         {

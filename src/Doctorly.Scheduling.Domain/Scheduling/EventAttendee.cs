@@ -18,9 +18,9 @@ public sealed class EventAttendee
 
     public bool OptInNotify { get; private set; }
 
-    public DateTimeOffset InvitedAt { get; private set; }
+    public DateTime InvitedAt { get; private set; }
 
-    public DateTimeOffset? RespondedAt { get; private set; }
+    public DateTime? RespondedAt { get; private set; }
 
     // internal so an invitation can only be created through CalendarEvent.Invite.
     internal static EventAttendee Create(Guid eventId, Guid attendeeId, bool optInNotify)
@@ -37,7 +37,7 @@ public sealed class EventAttendee
             AttendeeId = attendeeId,
             OptInNotify = optInNotify,
             Status = AttendanceStatus.Pending,
-            InvitedAt = DateTimeOffset.UtcNow,
+            InvitedAt = DateTime.UtcNow,
         };
     }
 
@@ -49,6 +49,6 @@ public sealed class EventAttendee
         }
 
         Status = response;
-        RespondedAt = DateTimeOffset.UtcNow;
+        RespondedAt = DateTime.UtcNow;
     }
 }

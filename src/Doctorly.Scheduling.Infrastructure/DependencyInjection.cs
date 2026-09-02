@@ -1,5 +1,6 @@
 using Doctorly.Scheduling.Application.Common.Interfaces;
 using Doctorly.Scheduling.Infrastructure.Persistence;
+using Doctorly.Scheduling.Infrastructure.Persistence.Queries;
 using Doctorly.Scheduling.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +23,7 @@ public static class DependencyInjection
         services.AddScoped<ICalendarEventRepository, CalendarEventRepository>();
         services.AddScoped<IAttendeeRepository, AttendeeRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IEventQueries, EventQueries>();
 
         return services;
     }

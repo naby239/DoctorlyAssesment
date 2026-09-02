@@ -82,3 +82,53 @@ Content-Type: application/json
 
 ### Unknown route - should still be problem+json
 GET {{host}}/api/does-not-exist
+
+### Page below 1
+GET {{host}}/api/events?page=0
+
+### Page size above the 100 maximum
+GET {{host}}/api/events?pageSize=500
+
+### 'To' before 'From'
+GET {{host}}/api/events?from=2026-03-05T00:00:00Z&to=2026-03-01T00:00:00Z
+
+### Malformed id
+GET {{host}}/api/events/not-a-guid
+
+### Timestamp with no offset - ambiguous, rejected rather than guessed at
+POST {{host}}/api/events
+Content-Type: application/json
+
+{
+  "title": "Consultation",
+  "startTime": "2026-03-02T09:00:00",
+  "endTime": "2026-03-02T09:30:00"
+}
+
+> {%
+    client.test("400 Bad Request", function () {
+        client.assert(response.status === 400, "Expected 400, got " + response.status);
+    });
+%}
+
+### An explicit offset is fine - stored as 07:00Z
+POST {{host}}/api/events
+Content-Type: application/json
+
+{
+  "title": "Consultation in Berlin local time",
+  "startTime": "2026-03-02T09:00:00+02:00",
+  "endTime": "2026-03-02T09:30:00+02:00"
+}
+
+### Query filter with no offset - rejected the same way a request body would be
+GET {{host}}/api/events?from=2026-06-10T11:00:00&to=2026-06-10T13:00:00
+
+> {%
+    client.test("400 Bad Request", function () {
+        client.assert(response.status === 400, "Expected 400, got " + response.status);
+    });
+%}
+
+### Query filter with an explicit offset
+GET {{host}}/api/events?from=2026-06-10T13:00:00%2B02:00&to=2026-06-10T15:00:00%2B02:00

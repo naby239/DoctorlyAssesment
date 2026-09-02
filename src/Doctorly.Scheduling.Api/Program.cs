@@ -1,5 +1,6 @@
 using Doctorly.Scheduling.Api.ErrorHandling;
 using Doctorly.Scheduling.Api.OpenApi;
+using Doctorly.Scheduling.Api.Serialization;
 using Doctorly.Scheduling.Application;
 using Doctorly.Scheduling.Infrastructure;
 using Doctorly.Scheduling.Infrastructure.Persistence;
@@ -7,7 +8,10 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+        options.ModelBinderProviders.Insert(0, new RequiredOffsetDateTimeModelBinderProvider()))
+    .AddJsonOptions(options =>
+        options.JsonSerializerOptions.Converters.Add(new RequiredOffsetDateTimeConverter()));
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);

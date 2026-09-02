@@ -4,8 +4,8 @@ public sealed record EventDto(
     Guid Id,
     string Title,
     string? Description,
-    DateTimeOffset StartTime,
-    DateTimeOffset EndTime,
+    DateTime StartTime,
+    DateTime EndTime,
     string Status,
     Guid Version,
     IReadOnlyList<EventAttendeeDto> Attendees);

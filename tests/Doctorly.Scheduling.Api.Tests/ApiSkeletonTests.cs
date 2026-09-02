@@ -1,11 +1,10 @@
 using System.Net;
 using System.Text.Json;
-using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace Doctorly.Scheduling.Api.Tests;
 
-public sealed class ApiSkeletonTests(WebApplicationFactory<Program> factory)
-    : IClassFixture<WebApplicationFactory<Program>>
+public sealed class ApiSkeletonTests(SchedulingApiFactory factory)
+    : IClassFixture<SchedulingApiFactory>
 {
     [Fact]
     public async Task Health_endpoint_reports_healthy()

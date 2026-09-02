@@ -44,7 +44,7 @@ public sealed class CalendarEventTests
 
         var calendarEvent = CalendarEvent.Schedule("Consultation", null, berlinMorning, berlinMorning.AddHours(1));
 
-        calendarEvent.StartTime.Offset.ShouldBe(TimeSpan.Zero);
+        calendarEvent.StartTime.Kind.ShouldBe(DateTimeKind.Utc);
         calendarEvent.StartTime.Hour.ShouldBe(7);
     }
 
@@ -138,8 +138,8 @@ public sealed class CalendarEventTests
 
         calendarEvent.Reschedule(newStart, newStart.AddHours(1));
 
-        calendarEvent.StartTime.ShouldBe(newStart);
-        calendarEvent.EndTime.ShouldBe(newStart.AddHours(1));
+        calendarEvent.StartTime.ShouldBe(newStart.UtcDateTime);
+        calendarEvent.EndTime.ShouldBe(newStart.AddHours(1).UtcDateTime);
         calendarEvent.UpdatedAt.ShouldNotBeNull();
     }
 

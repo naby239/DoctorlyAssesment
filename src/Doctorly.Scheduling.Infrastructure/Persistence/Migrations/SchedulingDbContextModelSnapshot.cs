@@ -26,7 +26,7 @@ namespace Doctorly.Scheduling.Infrastructure.Persistence.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
@@ -56,20 +56,20 @@ namespace Doctorly.Scheduling.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset?>("CancelledAt")
+                    b.Property<DateTime?>("CancelledAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
                         .HasMaxLength(2000)
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("EndTime")
+                    b.Property<DateTime>("EndTime")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("StartTime")
+                    b.Property<DateTime>("StartTime")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Status")
@@ -82,7 +82,7 @@ namespace Doctorly.Scheduling.Infrastructure.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset?>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("Version")
@@ -105,13 +105,13 @@ namespace Doctorly.Scheduling.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("EventId")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("InvitedAt")
+                    b.Property<DateTime>("InvitedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("OptInNotify")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset?>("RespondedAt")
+                    b.Property<DateTime?>("RespondedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Status")

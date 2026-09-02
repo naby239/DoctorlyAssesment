@@ -80,3 +80,42 @@ Content-Type: application/json
   "startTime": "2026-03-03T14:00:00Z",
   "endTime": "2026-03-03T15:00:00Z"
 }
+
+### Get a single event with its attendees - the ETag here is needed to update it later
+GET {{host}}/api/events/{{eventId}}
+
+> {%
+    client.test("200 OK", function () {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+    client.test("ETag returned", function () {
+        client.assert(response.headers.valueOf("ETag") !== null, "No ETag header");
+    });
+%}
+
+### Get an event that does not exist
+GET {{host}}/api/events/00000000-0000-0000-0000-000000000001
+
+### List every event, newest window first
+GET {{host}}/api/events
+
+### Filter by date window - returns events overlapping it, not only those fully inside
+GET {{host}}/api/events?from=2026-03-01T00:00:00Z&to=2026-03-03T00:00:00Z
+
+### Search the title and description
+GET {{host}}/api/events?search=knee
+
+### Search is case-insensitive
+GET {{host}}/api/events?search=CONSULT
+
+### Everything a given patient is booked into
+GET {{host}}/api/events?attendeeEmail=ANNA.WEBER@PRACTICE.DE
+
+### Only cancelled events
+GET {{host}}/api/events?status=Cancelled
+
+### Paging
+GET {{host}}/api/events?page=1&pageSize=2
+
+### Filters combine
+GET {{host}}/api/events?from=2026-03-01T00:00:00Z&to=2026-04-01T00:00:00Z&status=Scheduled&search=test&page=1&pageSize=10

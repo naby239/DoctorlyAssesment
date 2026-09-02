@@ -19,7 +19,7 @@ namespace Doctorly.Scheduling.Infrastructure.Persistence.Migrations
                     Name = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
                     Email = table.Column<string>(type: "TEXT", maxLength: 320, nullable: false),
                     ContactNumber = table.Column<string>(type: "TEXT", maxLength: 30, nullable: true),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -33,13 +33,13 @@ namespace Doctorly.Scheduling.Infrastructure.Persistence.Migrations
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     Title = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
                     Description = table.Column<string>(type: "TEXT", maxLength: 2000, nullable: true),
-                    StartTime = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    EndTime = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    StartTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    EndTime = table.Column<DateTime>(type: "TEXT", nullable: false),
                     Status = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
                     CancellationReason = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
-                    CancelledAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    UpdatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
+                    CancelledAt = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
                     Version = table.Column<Guid>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
@@ -56,8 +56,8 @@ namespace Doctorly.Scheduling.Infrastructure.Persistence.Migrations
                     AttendeeId = table.Column<Guid>(type: "TEXT", nullable: false),
                     Status = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
                     OptInNotify = table.Column<bool>(type: "INTEGER", nullable: false),
-                    InvitedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    RespondedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: true)
+                    InvitedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    RespondedAt = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
